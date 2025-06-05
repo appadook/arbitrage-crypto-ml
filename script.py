@@ -27,7 +27,7 @@ def get_min_max_prices_row(row, columns):
         "max_col": max_col_short
     }
 
-def calculate_arbitrage(row):
+def calculate_arbitrage(row, application = True):
     """
     Calculate arbitrage opportunity and fees for a given row of data
     
@@ -79,13 +79,23 @@ def calculate_arbitrage(row):
 
     # strategy_detailed = f"BUY@{min_exchange} FOR ({min_price}) -> SELL@{max_exchange} FOR ({max_price})"
     
-    return {
-        # "strategy_detailed": strategy_detailed if fees["arbitrage_after_fees"] > 0 else "No profitable arbitrage",
-        "strategy": strategy if fees["arbitrage_after_fees"] > 0 else "No profitable arbitrage",
-        "arbitrage(%)": arbitrage_pct,
-        "total_fees": fees["total_fees"],
-        "arbitrage_after_fees": fees["arbitrage_after_fees"]
-    }
+    if application == True:
+        return {
+            # "strategy_detailed": strategy_detailed if fees["arbitrage_after_fees"] > 0 else "No profitable arbitrage",
+            "strategy": strategy if fees["arbitrage_after_fees"] > 0 else "No profitable arbitrage",
+            "arbitrage(%)": arbitrage_pct,
+            "total_fees": fees["total_fees"],
+            "arbitrage_after_fees": fees["arbitrage_after_fees"]
+        }
+    else:
+         return {
+            # "strategy_detailed": strategy_detailed if fees["arbitrage_after_fees"] > 0 else "No profitable arbitrage",
+            "strategy": strategy,
+            "arbitrage(%)": arbitrage_pct,
+            "total_fees": fees["total_fees"],
+            "arbitrage_after_fees": fees["arbitrage_after_fees"]
+        }
+
 
 
 df = pd.read_csv("cleaned_crypto_arbitrage_intermediate.csv")  
@@ -95,10 +105,10 @@ total_rows = len(df)
 print(f"Processing {total_rows} rows...")
 
 # Create a function to process rows with progress tracking
-def process_with_progress(dataframe):
+def process_with_progress(dataframe, application=True):
     results = []
     for i, row in dataframe.iterrows():
-        result = calculate_arbitrage(row)
+        result = calculate_arbitrage(row, application)
         results.append(result)
         # Print progress every 1000 rows
         if i % 1000 == 0:
@@ -107,11 +117,16 @@ def process_with_progress(dataframe):
 
 # Compute arbitrage and fees for each row with progress tracking
 arbitrage_df = process_with_progress(df)
+arbitrage_df_no_fees = process_with_progress(df, application=False)
+
+df_copy = df.copy()
 
 # Append the new columns to the original DataFrame
 df = pd.concat([df, arbitrage_df], axis=1)
+df_no_fees = pd.concat([df_copy, arbitrage_df_no_fees], axis=1)
 
 # Save the enriched DataFrame to CSV
 print("Saving results to CSV...")
 df.to_csv("cleaned_crypto_arbitrage_with_fees.csv", index=False)
+df_no_fees.to_csv("cleaned_crypto_arbitrage_no_fees.csv", index=False)
 print("Processing complete!")
