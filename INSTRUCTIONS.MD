@@ -16,3 +16,5 @@ This will do the necessary feature transformation to the dataset and create a st
 
 ### Step 3
 Loading the two new datasets back in to the notebook for further data mining and running the evaluation experiments.
+
+* Do no run the last 2 code cells as that is meant just for hyperparamtrization which takes way too long to finish and for the scope of this project isn't very necessary.

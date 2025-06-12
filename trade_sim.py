@@ -91,7 +91,7 @@ if __name__ == "__main__":
     
     # Run a simulation with the strategy
     try:
-        results = simulator.simulate(strategy, buy_price=30000, sell_price=31000)
+        results = simulator.simulate(strategy, buy_price=111775, sell_price=111778)
         print("\nSimulation Results:")
         print(f"Arbitrage after fees: ${results:.2f}")
         if results > 0:
